@@ -1,27 +1,12 @@
 # Ansible Playbook for Office Workstations
 
-ansible_project/
-├── ansible.cfg              # Основной конфиг-файл Ansible
-├── group_vars/
-│   └── all.yml              # Общие переменные (в т.ч. ansible_user)
-├── host_vars/               # Переменные для отдельных хостов
-├── hosts                    # Инвентарный файл с целевыми машинами
-├── roles/
-│   └── setup/
-│       ├── tasks/
-│       │   └── main.yml     # Главный сценарий настройки
-│       ├── templates/       # Jinja2-шаблоны
-│       └── files/           # Файлы для копирования
-├── run_playbook.yml         # Основной playbook
-├── run_playbook2.yml        # 🎯 Чувствительный playbook для точечной настройки
-└── devops_setup.sh          # ⚙️ Bash-скрипт для быстрого запуска
+<pre> 📁 <b>ansible_project/</b> — Корневая директория Ansible-проекта ├── 📄 <b>ansible.cfg</b> — Основной конфигурационный файл Ansible ├── 📁 <b>group_vars/</b> — Глобальные переменные для групп хостов │ └── 📄 <b>all.yml</b> — Общие переменные, включая ansible_user ├── 📁 <b>host_vars/</b> — Переменные для индивидуальных хостов (по имени) ├── 📄 <b>hosts</b> — Инвентарный файл со списком целевых машин ├── 📁 <b>roles/</b> — Каталог ролей (разделение логики на модули) │ └── 📁 <b>setup/</b> — Основная роль установки │ ├── 📁 <b>tasks/</b> — Сценарии задач │ │ └── 📄 <b>main.yml</b> — Главный сценарий настройки окружения │ ├── 📁 <b>templates/</b> — Jinja2-шаблоны для конфигурационных файлов │ └── 📁 <b>files/</b> — Готовые файлы для копирования на узлы ├── 📄 <b>run_playbook.yml</b> — Основной playbook для запуска ├── 📄 <b>run_playbook2.yml</b> — 🎯 Альтернативный playbook для точечной настройки └── ⚙️ <b>devops_setup.sh</b> — Bash-скрипт для быстрого запуска playbook </pre>
 
 
 
-## ✔️ Протестированные системы
+## ✔️ Протестированные системы на физических машинах
 
-- **Debian 12** (Bookworm)  
-- **Zorin OS 16** (на базе Ubuntu 20.04 LTS)  
+- **Debian 12** (Bookworm)    
 - **Zorin OS 17** (на базе Ubuntu 22.04 LTS)  
 
 ---

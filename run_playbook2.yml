@@ -1,0 +1,159 @@
+---
+- name: System preparation phase
+  block:
+    - name: "[1/4] Updating package cache"
+      apt:
+        update_cache: yes
+      become: yes
+      register: update_cache
+      until: update_cache is succeeded
+      retries: 3
+      delay: 10
+
+    - name: "[2/4] Checking for broken packages"
+      command: apt-get check
+      register: apt_check
+      ignore_errors: yes
+      changed_when: false
+      become: yes
+      tags: check
+
+    - name: Pause after package check
+      pause:
+        seconds: 5
+      when: apt_check.rc != 0
+
+    - name: "[3/4] Fixing broken packages (if needed)"
+      block:
+        - name: Reconfiguring dpkg packages
+          command: dpkg --configure -a
+          become: yes
+
+        - name: Repairing broken dependencies
+          apt:
+            update_cache: yes
+            autoremove: yes
+            fix_broken: yes
+          become: yes
+          register: repair_result
+          until: repair_result is succeeded
+          retries: 3
+          delay: 15
+      when: apt_check.rc != 0
+      tags: repair
+
+- name: Pause before core installation
+  pause:
+    seconds: 10
+
+- name: Core system installation
+  block:
+    - name: "[4/4] Installing essential system utilities"
+      apt:
+        name:
+          - htop
+          - curl
+          - wget
+          - net-tools
+          - git
+          - software-properties-common
+          - apt-transport-https
+          - ca-certificates
+        state: present
+      become: yes
+      register: core_install
+      until: core_install is succeeded
+      retries: 2
+      delay: 20
+
+- name: Pause before GUI installation
+  pause:
+    seconds: 15
+
+- name: GUI applications installation
+  block:
+    - name: "[1/4] Installing file management tools"
+      apt:
+        name:
+          - file-roller
+          - filezilla
+          - keepassxc
+          - baobab
+        state: present
+      become: yes
+      throttle: 1
+
+    - name: Pause between GUI groups
+      pause:
+        seconds: 10
+
+    - name: "[2/4] Installing multimedia and communication"
+      apt:
+        name:
+          - vlc
+          - thunderbird
+          - remmina
+        state: present
+      become: yes
+      throttle: 1
+
+    - name: Pause between GUI groups
+      pause:
+        seconds: 10
+
+    - name: "[3/4] Installing web browsers"
+      apt:
+        name:
+          - firefox-esr
+          - chromium
+        state: present
+      become: yes
+      ignore_errors: yes
+      throttle: 1
+
+    - name: Pause between GUI groups
+      pause:
+        seconds: 10
+
+    - name: "[4/4] Installing office suite"
+      apt:
+        name:
+          - libreoffice
+          - okular
+        state: present
+      become: yes
+      throttle: 1
+
+- name: Pause before system tools
+  pause:
+    seconds: 10
+
+- name: System tools installation
+  block:
+    - name: "Installing system management tools"
+      apt:
+        name:
+          - synaptic
+          - shotwell
+          - gnome-tweaks
+          - caffeine
+        state: present
+      become: yes
+      throttle: 1
+
+- name: Pause before cleanup
+  pause:
+    seconds: 15
+
+- name: System cleanup phase
+  block:
+    - name: "Removing unnecessary packages"
+      apt:
+        autoremove: yes
+        autoclean: yes
+      become: yes
+
+    - name: "Final package cache update"
+      apt:
+        update_cache: yes
+      become: yes

@@ -1,0 +1,103 @@
+---
+- name: Update and repair system
+  block:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: yes
+
+    - name: Check for broken packages
+      command: apt-get check
+      register: apt_check
+      ignore_errors: yes
+      changed_when: false
+      become: yes
+
+    - name: Fix broken packages if detected
+      block:
+        - name: Reconfigure dpkg packages
+          command: dpkg --configure -a
+          become: yes
+
+        - name: Repair broken dependencies
+          apt:
+            update_cache: yes
+            autoremove: yes
+            fix_broken: yes
+          become: yes
+      when: apt_check.rc != 0
+
+- name: Install core system utilities
+  apt:
+    name:
+      - htop
+      - curl
+      - wget
+      - net-tools
+      - git
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+    state: present
+  become: yes
+
+- name: Install GUI applications
+  block:
+    - name: File management tools
+      apt:
+        name:
+          - file-roller
+          - filezilla
+          - keepassxc
+          - baobab
+        state: present
+      become: yes
+
+    - name: Multimedia and communication
+      apt:
+        name:
+          - vlc
+          - thunderbird
+          - remmina
+        state: present
+      become: yes
+
+    - name: Browsers
+      apt:
+        name:
+          - firefox-esr
+          - chromium
+        state: present
+      become: yes
+      ignore_errors: yes
+
+    - name: Office suite
+      apt:
+        name:
+          - libreoffice
+          - okular
+        state: present
+      become: yes
+
+- name: Install system tools
+  apt:
+    name:
+      - synaptic
+      - shotwell
+      - gnome-tweaks
+      - caffeine
+    state: present
+  become: yes
+
+- name: Final cleanup
+  block:
+    - name: Remove unnecessary packages
+      apt:
+        autoremove: yes
+        autoclean: yes
+      become: yes
+
+    - name: Update package index again
+      apt:
+        update_cache: yes
+      become: yes
